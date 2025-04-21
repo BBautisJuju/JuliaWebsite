@@ -1,0 +1,61 @@
+---
+title: "dashboard"
+format: dashboard
+editor: visual
+---
+
+```{r}
+#install.packages("shiny")
+#install.packages("shinydashboard")
+#install.packages("learnr")
+#install.packages("tidyverse")
+#install.packages("ggplot2")
+#install.packages("DT")
+#install.packages("readr")
+library(shiny)
+library(shinydashboard)
+library(tidyverse)
+library(DT)
+library(ggplot2)
+
+```
+
+```{r}
+library(readr)
+movies <- read_csv("movies.csv")
+
+```
+
+```{r}
+## 📊 Distribution of IMDb Ratings
+
+movies |> 
+  ggplot(aes(x = RATING)) +
+  geom_histogram(bins = 25, fill = "skyblue", color = "white") +
+  labs(title = "Distribution of IMDb Ratings", x = "Rating", y = "Count") +
+  theme_minimal()
+```
+
+```{r}
+movies_clean <- movies |> 
+  mutate(Gross_num = parse_number(Gross))
+
+movies_clean |> 
+  ggplot(aes(x = RATING, y = Gross_num)) +
+  geom_point(alpha = 0.6, color = "tomato") +
+  labs(title = "Gross Revenue vs IMDb Rating", x = "Rating", y = "Gross ($)") +
+  theme_minimal()
+```
+
+```{r}
+# Top 10 movies by rating
+movies |> 
+  filter(!is.na(RATING)) |> 
+  arrange(desc(RATING)) |> 
+  slice_max(RATING, n = 10) |> 
+  select(MOVIES, YEAR, GENRE, RATING) |> 
+  datatable(
+    options = list(pageLength = 10),
+    caption = "Top 10 Movies by IMDb Rating"
+  )
+```
